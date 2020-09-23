@@ -1,4 +1,4 @@
-EXTRA_DIST = version.sh autogen.sh VERSION
+EXTRA_DIST = autogen.sh VERSION
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -8,7 +8,7 @@ LIB_TLDEVELDIR = @LIB_TLDEVELDIR@
 
 # top_builddir = @top_builddir@
 
-SUBDIRS = src dev
+SUBDIRS = src
 
 
 count:
