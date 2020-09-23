@@ -53,94 +53,94 @@ void* tmalloc(int size);
 #endif
 
 struct parameters{
-  int* order;
-  char** infile;
-  char* outfile;
-  char* format;
-  char* sort;
-  char* ref_flag;
+        int* order;
+        char** infile;
+        char* outfile;
+        char* format;
+        char* sort;
+        char* ref_flag;
 
-  float best_flag;
-  float idal;
-  float x1;
-  float x2;
-  float x3;
-  float bootcutoff;
-  float print_column_cutoff;
+        float best_flag;
+        float idal;
+        float x1;
+        float x2;
+        float x3;
+        float bootcutoff;
+        float print_column_cutoff;
 
-  int print_spacer;
-  int gap_flag;
-  int quiet_flag;
-  int print_alignment_flag;
-  int server_flag;
-  int bootstrap;
-  int set_diff;
+        int print_spacer;
+        int gap_flag;
+        int quiet_flag;
+        int print_alignment_flag;
+        int server_flag;
+        int bootstrap;
+        int set_diff;
 };
 
 
 struct columns{
-  int** c;
-  int len;
+        int** c;
+        int len;
 };
 
 struct sets{
-  float score_4_input_aln;
-  float aln_sim;
-  float id;
-  float pcounts;
+        float score_4_input_aln;
+        float aln_sim;
+        float id;
+        float pcounts;
 };
 
 struct aln_space{
-  struct sets* s;
-  float** o;
-  float** sim;
-  float* scores;
-  float* support;
+        struct sets* s;
+        float** o;
+        float** sim;
+        float* scores;
+        float* support;
 
-  float* ref_10;
-  float* ref_11;
-  float* ref_01;
+        float* ref_10;
+        float* ref_11;
+        float* ref_01;
 
-  float diff;
+        float diff;
 
 
 };
 
 struct node{
-  struct node* next;
-  unsigned int pos;
-  unsigned int group;
+        struct node* next;
+        unsigned int pos;
+        unsigned int group;
 };
 
 
 struct alignment{
-  struct feature** ft;
-  struct sequence_info** si;
-  unsigned int** sip;
-  unsigned int* nsip;
-  unsigned int* sl;
-  unsigned int* lsn;
-  unsigned int* adler;
-  int** s;
-  char**seq;
-  char** sn;
-  float id;
-  float av_len;
-  float al;
-  float score;
-  unsigned int len;
-  unsigned int pairs;
-  unsigned int numseq;
+        struct feature** ft;
+        struct sequence_info** si;
+        unsigned int** sip;
+        unsigned int* nsip;
+        unsigned int* sl;
+        unsigned int* lsn;
+        unsigned int* adler;
+        int** s;
+        char**seq;
+        char** sn;
+        float id;
+        float av_len;
+        float al;
+        float score;
+        unsigned int len;
+        unsigned int pairs;
+        unsigned int numseq;
 };
 
 struct feature{
-  struct feature *next;
-  char* type;
-  char* note;
-  float score;
-  int start;
-  int end;
-  int color;
+        struct feature *next;
+        char* type;
+        char* note;
+        float score;
+        int start;
+        int end;
+        int color;
 
 };
 

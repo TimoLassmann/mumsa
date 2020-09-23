@@ -168,7 +168,7 @@ struct node** feed_boot_hash(struct node** hash, struct alignment* ap, unsigned 
                 for (i = 0; i < len;i++){
                         if (seqa[i] < len && seqb[i] < len){
                                 //if(ran1(seed) > cutoff){
-                                        hash[seqa[i]] = insert_pair(seqb[i],aln,hash[seqa[i]]);
+                                hash[seqa[i]] = insert_pair(seqb[i],aln,hash[seqa[i]]);
                                         p++;
                                         //}
                         }

@@ -19,10 +19,17 @@ dnl m4_include([m4/ax_ext.m4])
 m4_include([m4/ax_valgrind_check.m4])
 m4_include([m4/ax_check_compile_flag.m4])
 m4_include([m4/ax_set_compile_flags.m4])
-
+m4_include([m4/ax_with_tldevel.m4])
 dnl AX_EXT
 
 AX_ENABLE_DEBUG
+
+AX_WITH_TLDEVEL
+
+AC_MSG_NOTICE([$TLDEVEL_CPPFLAGS])
+AC_MSG_NOTICE([$TLDEVEL_LDFLAGS])
+AC_MSG_NOTICE([$TLDEVEL_LIB])
+
 
 # test for working C11 _Generic support
 AN_IDENTIFIER([_Generic], [AC_C__GENERIC])
@@ -135,6 +142,9 @@ AC_MSG_NOTICE([         Configured on: $DATE])
 AC_MSG_NOTICE([         Configured by: $USER])
 AC_MSG_NOTICE([           Host system: $host_cpu-$host_vendor-$host_os])
 AC_MSG_NOTICE([     Uname information: $UNAME_INFO])
+AC_MSG_NOTICE([                CFLAGS: $CFLAGS])
+AC_MSG_NOTICE([               CPFLAGS: $CPPFLAGS   $TLDEVEL_CPPFLAGS])
+AC_MSG_NOTICE([                  LIBS: $LIBS $TLDEVEL_LIB])
+AC_MSG_NOTICE([               LDFLAGS: $LDFLAGS $TLDEVEL_LDFLAGS])
 AC_MSG_NOTICE([    Installation point: $prefix])
-AC_MSG_NOTICE([            SIMD flags: $SIMD_FLAGS])
 AC_MSG_NOTICE([---------------------------------------------------------])
