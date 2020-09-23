@@ -1,18 +1,24 @@
+ACLOCAL_AMFLAGS= -I m4
 # Build the library in the hand subdirectory first.
-
-ACLOCAL_AMFLAGS = -I m4
+LIB_TLDEVELDIR = @LIB_TLDEVELDIR@
 
 @VALGRIND_CHECK_RULES@
 
-AM_CFLAGS =  @TLDEVEL_CFLAGS@
-
 CLEANFILES =
 
-# top_builddir = @top_builddir@
+AM_CFLAGS = @TLDEVEL_CPPFLAGS@
+
 AM_LDFLAGS = @DEAD_STRIP@
 AM_LDFLAGS += -Wno-undef
+AM_LDFLAGS += -static
 
-bin_PROGRAMS = cmsa
+LIBS = @TLDEVEL_LIB@ -lm
+
+bin_PROGRAMS = cmsa mumsa
+
+mumsa_SOURCES = \
+run_mumsa.c \
+rwalign.c
 
 cmsa_SOURCES = \
 adler.c \
