@@ -19,6 +19,8 @@ int alloc_mumsa_data(struct mumsa_data** mdat, int num_alignment)
         m->avg_len = NULL;
         m->sim = NULL;
         m->s = NULL;
+        m->overlap = NULL;
+
         m->num_aln = num_alignment;
         m->num_seq = 0;
 
@@ -34,6 +36,7 @@ int alloc_mumsa_data(struct mumsa_data** mdat, int num_alignment)
         MMALLOC(m->avg_len , sizeof(double) * m->num_aln);
         MMALLOC(m->al, sizeof(double) * m->num_aln);
 
+
         MMALLOC(m->s, sizeof(struct sets) * (1 << m->num_aln));
         for(i = 0; i < (1 << m->num_aln);i++){
                 m->s[i].id = 0.0;
@@ -42,6 +45,7 @@ int alloc_mumsa_data(struct mumsa_data** mdat, int num_alignment)
                 m->s[i].score_4_input_aln = 0.0;
         }
 
+        RUN(galloc(&m->overlap,m->num_aln,m->num_aln));
 
         *mdat = m;
         return OK;
@@ -60,6 +64,10 @@ int free_mumsa_data(struct mumsa_data* m)
                 if(m->sim){
                         gfree(m->sim);
                 }
+                if(m->overlap){
+                        gfree(m->overlap);
+                }
+
                 if(m->msa){
                         for(i = 0; i < m->num_aln;i++){
                                 free_msa(m->msa[i]);
@@ -85,6 +93,7 @@ int free_mumsa_data(struct mumsa_data* m)
                 if(m->al){
                         MFREE(m->al);
                 }
+
                 MFREE(m);
         }
 }

@@ -13,6 +13,7 @@ int alloc_msa_info(struct msa_info** info, int numseq, int aln_len)
         msai->num_seq = numseq;
         msai->s = NULL;
         msai->adler_val = NULL;
+        msai->pairs = 0.0;
         RUN(galloc(&msai->adler_val,msai->num_seq));
 
         RUN(galloc(&msai->s, msai->num_seq, msai->aln_len));

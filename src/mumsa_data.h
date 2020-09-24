@@ -16,7 +16,9 @@ struct mumsa_data{
         struct msa** msa;
         struct msa_info** msai;
         struct sets* s;
+        double** overlap;
         double** sim;
+
         double* poar;
         double* id;
         double* avg_len;

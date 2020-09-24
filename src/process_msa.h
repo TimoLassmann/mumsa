@@ -7,6 +7,8 @@
 #define EXTERN extern
 #endif
 
+EXTERN int calc_sim_pairs(struct mumsa_data* m);
+EXTERN int calc_overlap(struct mumsa_data* m);
 
 #undef PROCESS_MSA_IMPORT
 #undef EXTERN

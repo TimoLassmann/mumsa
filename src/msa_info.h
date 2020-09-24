@@ -11,8 +11,10 @@
 struct msa_info{
         int** s;
         int* adler_val;
+        double pairs;
         int aln_len;
         int num_seq;
+
 };
 
 EXTERN int alloc_msa_info(struct msa_info** info, int numseq, int aln_len);

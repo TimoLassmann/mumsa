@@ -13,11 +13,57 @@ KHASH_MAP_INIT_INT64(PAIR,int);
 static int fill_hash(khash_t(PAIR) *h, struct msa_info* msai,int aln,int i,int j);
 static int pop(unsigned int x);
 
+
+int calc_overlap(struct mumsa_data* m)
+{
+        double p1;
+        double p2;
+        int i;
+        int j;
+        int c;
+
+        for(i = 0; i < m->num_aln;i++){
+                for(j = 0;j < m->num_aln;j++){
+                        m->overlap[i][j] = 0.0;
+                }
+        }
+        for (i = (1 << m->num_aln);i--;){
+                for (j = 0; j < m->num_aln;j++){
+                        if(i&(1 << j)){
+                                for (c =j+1;c < m->num_aln;c++){
+                                        if(i&(1 << c)){
+                                                m->overlap[j][c] += m->s[i].pcounts;
+                                        }
+                                }
+                        }
+                }
+        }
+        for (j = 0; j < m->num_aln;j++){
+                for (c =j+1;c < m->num_aln;c++){
+                        m->overlap[c][j] = m->overlap[j][c];
+                }
+        }
+
+
+        for (i = 0;i < m->num_aln;i++){
+                p1 = m->msai[i]->pairs;
+
+                for ( j = 0; j < m->num_aln;j++){
+                        p2 = m->msai[j]->pairs;
+                        m->overlap[i][j] = m->overlap[i][j]/ ((p1 + p2) / 2.0);
+                }
+        }
+        return OK;
+}
+
 int calc_sim_pairs(struct mumsa_data* m)
 {
         khash_t(PAIR) *h = kh_init(PAIR);
         khiter_t k;
         double tmp;
+        int len_a;
+        int len_b;
+
         int i;
         int j;
         int c;
@@ -27,11 +73,16 @@ int calc_sim_pairs(struct mumsa_data* m)
 
                 m->s[i].pcounts = 0.0;
         }
+        for(i = 0; i < m->num_aln;i++){
+                m->msai[i]->pairs = 0.0;
+        }
 
 
 
         for(i = 0; i < m->num_seq-1;i++){
+                len_a = m->msa[0]->sequences[i]->len;
                 for(j = i+1; j < m->num_seq;j++){
+                        len_b =  m->msa[0]->sequences[j]->len;
                         kh_clear(PAIR, h);
                         for(c = 0; c < m->num_aln;c++){
                                 fill_hash(h, m->msai[c],c, i, j);
@@ -45,8 +96,7 @@ int calc_sim_pairs(struct mumsa_data* m)
                                         m->sim[i][j] += pop(v);
                                 }
                         }
-                        m->sim[i][j] = m->sim[j][j] / (double)(MACRO_MIN(m->msa[0]->sequences[i]->len, m->msa[0]->sequences[j]->len));
-
+                        m->sim[i][j] = m->sim[j][j] / (double)(MACRO_MIN(len_a,len_b));
                         kh_clear(PAIR, h);
                 }
         }
@@ -85,6 +135,7 @@ int fill_hash(khash_t(PAIR) *h, struct msa_info* msai,int aln,int i,int j)
                         }else{
                                 kh_value(h, k) = 1 << aln;
                         }
+                        msai->pairs += 1.0;
                 }
         }
 

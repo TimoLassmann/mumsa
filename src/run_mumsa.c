@@ -9,6 +9,8 @@
 #include "msa_ops.h"
 #include "msa_info.h"
 
+#include "process_msa.h"
+
 struct parameters{
         char** infile;
         int num_infiles;
@@ -161,6 +163,11 @@ int run_mumsa(struct parameters* param)
         /* Ok I am ready to go */
         m_data->num_seq = m_data->msa[0]->numseq;
         RUN(galloc(&m_data->sim, m_data->num_seq,m_data->num_seq));
+
+        RUN(calc_sim_pairs(m_data));
+        RUN(calc_overlap(m_data));
+
+
 
         free_mumsa_data(m_data);
         return OK;
