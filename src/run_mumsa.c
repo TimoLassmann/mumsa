@@ -187,18 +187,13 @@ int print_mumsa_help(char * argv[])
         fprintf(stdout,"\nUsage: %s %s\n\n",basename(argv[0]) ,usage);
         fprintf(stdout,"Options:\n\n");
 
-        fprintf(stdout,"%*s%-*s: %s %s\n",3,"",MESSAGE_MARGIN-3,"--format","Output format." ,"[Fasta]"  );
-        fprintf(stdout,"%*s%-*s: %s %s\n",3,"",MESSAGE_MARGIN-3,"--reformat","Reformat existing alignment." ,"[NA]"  );
-        fprintf(stdout,"%*s%-*s: %s %s\n",3,"",MESSAGE_MARGIN-3,"--gpo","Gap open penalty." ,"[5.5]"  );
-        fprintf(stdout,"%*s%-*s: %s %s\n",3,"",MESSAGE_MARGIN-3,"--gpe","Gap extension penalty." ,"[2.0]"  );
-        fprintf(stdout,"%*s%-*s: %s %s\n",3,"",MESSAGE_MARGIN-3,"--tgpe","Terminal gap extension penalty." ,"[1.0]"  );
 
         fprintf(stdout,"%*s%-*s: %s %s\n",3,"",MESSAGE_MARGIN-3,"--version (-V/-v)","Prints version." ,"[NA]"  );
 
         fprintf(stdout,"\nExamples:\n\n");
 
-        fprintf(stdout,"Passing sequences via stdin:\n\n   cat input.fa | mumsa -f fasta > out.afa\n\n");
-        fprintf(stdout,"Combining multiple input files:\n\n   mumsa seqsA.fa seqsB.fa seqsC.fa -f fasta > combined.afa\n\n");
+        fprintf(stdout,"mumsa aln.msf aln2.msf etc.... \n\n");
+        fprintf(stdout,"NOTE: mumsa always treats the first alignment as the reference.\n\n");
 
 
         return OK;

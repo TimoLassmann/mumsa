@@ -1,4 +1,4 @@
-EXTRA_DIST = autogen.sh VERSION
+EXTRA_DIST = autogen.sh
 
 ACLOCAL_AMFLAGS = -I m4
 
