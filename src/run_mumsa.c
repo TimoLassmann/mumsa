@@ -3,7 +3,11 @@
 
 #include <getopt.h>
 #include <string.h>
+#include "global.h"
+#include "mumsa_data.h"
 #include "msa.h"
+#include "msa_ops.h"
+#include "msa_info.h"
 
 struct parameters{
         char** infile;
@@ -107,7 +111,7 @@ int main(int argc, char *argv[])
                 }
         }
 
-
+        RUN(run_mumsa(param));
 
         free_parameters(param);
         return EXIT_SUCCESS;
@@ -118,35 +122,55 @@ ERROR:
 
 int run_mumsa(struct parameters* param)
 {
-        struct msa** msa = NULL;
-        int i;
 
-        MMALLOC(msa, sizeof(struct msa*) * param->num_infiles);
-        for(i = 0; i < param->num_infiles;i++){
-                msa[i] = NULL;
-        }
+        struct mumsa_data* m_data = NULL;
+        struct msa** msa = NULL;
+        struct msa_info** msai = NULL;
+        int i;
+        int j;
+        int c;
+
+
+        RUN(alloc_mumsa_data(&m_data, param->num_infiles));
+
         /* Step one read in all alignments  */
         for(i = 0; i < param->num_infiles;i++){
-                RUN(read_input(param->infile[i],&msa[i]));
+                RUN(read_input(param->infile[i],&m_data->msa[i]));
         }
 
-        /* do sanity checks */
+        /* do sanity checks AND SORT !!! */
         for(i = 0; i < param->num_infiles;i++){
-                RUN(check_for_sequences(msa[i]));
+                RUN(check_for_sequences(m_data->msa[i]));
+                LOG_MSG("Detected: %d sequences.", m_data->msa[i]->numseq);
+                RUN(sort_msa_by_seqname(m_data->msa[i]));
         }
+        /* fill data structures needed for mumsa */
         for(i = 0; i < param->num_infiles;i++){
-                free_msa(msa[i]);
+                RUN(read_msa_into_msai(m_data->msa[i],&m_data->msai[i]));
+                LOG_MSG("%d",i);
         }
-        MFREE(msa[i]);
+        RUN(alistat(m_data));
+
+        for(i = 0; i < param->num_infiles;i++){
+                RUN(msai_char_to_pos(m_data->msai[i]));
+
+        }
+        RUN(sanity_check_input(m_data));
+
+
+        /* Ok I am ready to go */
+        m_data->num_seq = m_data->msa[0]->numseq;
+        RUN(galloc(&m_data->sim, m_data->num_seq,m_data->num_seq));
+
+        free_mumsa_data(m_data);
         return OK;
 
 ERROR:
-        for(i = 0; i < param->num_infiles;i++){
-                free_msa(msa[i]);
-        }
-        MFREE(msa[i]);
+        free_mumsa_data(m_data);
         return FAIL;
 }
+
+
 
 int print_mumsa_help(char * argv[])
 {
@@ -204,8 +228,8 @@ int print_mumsa_header(void)
         fprintf(stdout,"Please cite:\n");
 
         /*        fprintf(stdout,"  Mumsa 3: multiple sequence alignment of large data sets
-Timo Lassmann
-Bioinformatics, btz795, https://doi.org/10.1093/bioinformatics/btz795
+                  Timo Lassmann
+                  Bioinformatics, btz795, https://doi.org/10.1093/bioinformatics/btz795
         */
         fprintf(stdout,"  Lassmann T, Sonnhammer EL.\n");
         fprintf(stdout,"  \"Automatic extraction of reliable regions from multiple sequence alignments.\"\n");

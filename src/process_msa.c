@@ -7,10 +7,94 @@
 #define PROCESS_MSA_IMPORT
 #include "process_msa.h"
 
-KHASH_SET_INIT_INT64(PAIR,int);
+
+KHASH_MAP_INIT_INT64(PAIR,int);
+
+static int fill_hash(khash_t(PAIR) *h, struct msa_info* msai,int aln,int i,int j);
+static int pop(unsigned int x);
 
 int calc_sim_pairs(struct mumsa_data* m)
 {
+        khash_t(PAIR) *h = kh_init(PAIR);
+        khiter_t k;
+        double tmp;
+        int i;
+        int j;
+        int c;
+        int v;
+        /* to make sure  */
+        for (i = 0;i < (1 << m->num_aln);i++){
+
+                m->s[i].pcounts = 0.0;
+        }
+
+
+
+        for(i = 0; i < m->num_seq-1;i++){
+                for(j = i+1; j < m->num_seq;j++){
+                        kh_clear(PAIR, h);
+                        for(c = 0; c < m->num_aln;c++){
+                                fill_hash(h, m->msai[c],c, i, j);
+                        }
+                        for (k = kh_begin(h); k != kh_end(h); ++k){
+                                if (kh_exist(h, k)){
+
+                                        v = kh_value(h, k);
+
+                                        m->s[v].pcounts += 1.0F;
+                                        m->sim[i][j] += pop(v);
+                                }
+                        }
+                        m->sim[i][j] = m->sim[j][j] / (double)(MACRO_MIN(m->msa[0]->sequences[i]->len, m->msa[0]->sequences[j]->len));
+
+                        kh_clear(PAIR, h);
+                }
+        }
+        for(i = 0; i < m->num_seq-1;i++){
+                for (j = i + 1; j < m->num_seq;j++){
+                        m->sim[j][i] = m->sim[i][j];
+                }
+        }
+
+        for(i = 0; i < m->num_seq-1;i++){
+                tmp = 0.0;
+                for (j = 0; j < m->num_seq;j++){
+                        tmp+= m->sim[i][j];
+                }
+                m->sim[i][i] = tmp / (double) m->num_seq;
+        }
+
+        kh_destroy(PAIR, h);
+        return OK;
+}
+
+int fill_hash(khash_t(PAIR) *h, struct msa_info* msai,int aln,int i,int j)
+{
+        uint64_t key;
+        khiter_t k;
+        int ret;
+        int c;
+
+        for(c = 0; c < msai->aln_len;c++){
+                if(msai->s[i][c] != -1 && msai->s[j][c] != -1){
+                        key = (uint64_t) msai->s[i][c] << 32UL | (uint64_t) msai->s[j][c];
+
+                        k = kh_put(PAIR, h, key, &ret);
+                        if (!ret){
+                                kh_value(h, k) |= (1 << aln);
+                        }else{
+                                kh_value(h, k) = 1 << aln;
+                        }
+                }
+        }
 
         return OK;
+}
+
+
+
+int pop(unsigned int x)
+{
+        static char table[256] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8};
+        return table[x & 0xff] + table[(x >> 8) & 0xff] + table[(x >> 16) & 0xff] + table[(x >> 24)];
 }

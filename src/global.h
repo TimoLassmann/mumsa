@@ -33,7 +33,8 @@
 #include <stdio.h>
 
 
-#include "tldevel.h"
+/* #include "tldevel.h" */
+
 
 #define ALN_STATUS_UNALIGNED 1   /* no gaps sequences may or may not have equal lengths  */
 #define ALN_STATUS_ALIGNED 2   /* sequences have equal lengths and may or may not contain gaps*/

@@ -23,7 +23,6 @@
   timolassmann@gmail.com
 */
 
-
 #include "cmsa.h"
 
 struct aln_space* calculate_overlap(struct aln_space* aln_space,struct alignment** alignments,char* ref)

@@ -239,6 +239,7 @@ void q_sort(struct alignment* aln, int left, int right)
         }
 }
 
+
 struct alignment* change_character_numbers_and_seq_len(struct alignment* aln)
 {
         int i,j,n;

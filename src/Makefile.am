@@ -18,7 +18,12 @@ bin_PROGRAMS = cmsa mumsa
 
 mumsa_SOURCES = \
 run_mumsa.c \
-rwalign.c
+rwalign.c \
+alphabet.c\
+mumsa_data.c \
+msa_ops.c \
+msa_info.c \
+process_msa.c
 
 cmsa_SOURCES = \
 adler.c \

@@ -4,9 +4,18 @@
 #include "msa.h"
 #include "msa_info.h"
 
+struct sets{
+        double score_4_input_aln;
+        double aln_sim;
+        double id;
+        double pcounts;
+};
+
+
 struct mumsa_data{
         struct msa** msa;
         struct msa_info** msai;
+        struct sets* s;
         double** sim;
         double* poar;
         double* id;
