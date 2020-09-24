@@ -133,8 +133,15 @@ int run_mumsa(struct parameters* param)
         /* Step one read in all alignments  */
         for(i = 0; i < param->num_infiles;i++){
                 RUN(read_input(param->infile[i],&m_data->msa[i]));
-        }
 
+                LOG_MSG("Aligned : %d", m_data->msa[i]->aligned);
+        }
+        for(i = 0; i < param->num_infiles;i++){
+                if(m_data->msa[i]->aligned != ALN_STATUS_ALIGNED){
+                        ERROR_MSG("Sequences in file %s are not aligned.", param->infile[i]);
+                }
+
+        }
         /* do sanity checks AND SORT !!! */
         for(i = 0; i < param->num_infiles;i++){
                 RUN(check_for_sequences(m_data->msa[i]));
@@ -144,7 +151,7 @@ int run_mumsa(struct parameters* param)
         /* fill data structures needed for mumsa */
         for(i = 0; i < param->num_infiles;i++){
                 RUN(read_msa_into_msai(m_data->msa[i],&m_data->msai[i]));
-                LOG_MSG("%d",i);
+
         }
         RUN(alistat(m_data));
 

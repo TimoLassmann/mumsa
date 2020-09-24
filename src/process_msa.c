@@ -40,7 +40,7 @@ int calc_overlap(struct mumsa_data* m)
         }
         for (j = 0; j < m->num_aln;j++){
                 for (c =j+1;c < m->num_aln;c++){
-                        LOG_MSG("%d %d %f", j,c, m->overlap[j][c]);
+                        /* log_MSG("%d %d %f", j,c, m->overlap[j][c]); */
                         m->overlap[c][j] = m->overlap[j][c];
                 }
         }

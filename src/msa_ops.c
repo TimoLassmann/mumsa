@@ -24,14 +24,12 @@ int sanity_check_input(struct mumsa_data* md)
         int i;
         int j;
         int c;
-
-
         /* check sequence names  */
         for(i = 0; i < md->num_aln;i++){
 
                 for(j = i+1; j <  md->num_aln;j++){
                         if(md->msa[i]->numseq != md->msa[j]->numseq){
-                                ERROR_MSG("Alignment %d and %d contain different number of sequences");
+                                ERROR_MSG("Alignment %d and %d contain different number of sequences (%d vs %d)",i,j, md->msa[i]->numseq, md->msa[j]->numseq);
                         }
                         for(c = 0; c < md->msai[i]->num_seq;c++){
                                 if(md->msai[i]->adler_val[c] != md->msai[j]->adler_val[c]){
@@ -96,8 +94,7 @@ int alistat(struct mumsa_data* m)
         int i;
         for(i = 0; i < m->num_aln;i++){
                 RUN(do_alistat_single(m->msa[i], m->msai[i],&m->avg_len[i],&m->id[i],&m->al[i]));
-                LOG_MSG("Aln: %f %f %f",m->avg_len[i],m->id[i],m->al[i]);
-
+                /* LOG_MSG("Aln: %f %f %f",m->avg_len[i],m->id[i],m->al[i]); */
         }
         return OK;
 ERROR:
