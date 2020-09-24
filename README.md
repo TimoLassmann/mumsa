@@ -4,6 +4,7 @@ Mumsa is a program to compare multiple sequence alignments. The current version 
 1) compute the set of aligned pairs of residues in the reference alignment
 2) determine the fraction of correctly aligned pairs of residues in test alignments.
 
+Contains a =khash.h= from [klib](https://github.com/attractivechaos/klib).
 
 # Installation
 
