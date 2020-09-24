@@ -23,7 +23,8 @@ alphabet.c\
 mumsa_data.c \
 msa_ops.c \
 msa_info.c \
-process_msa.c
+process_msa.c \
+reporting.c
 
 cmsa_SOURCES = \
 adler.c \

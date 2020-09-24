@@ -11,12 +11,7 @@
 
 #include "process_msa.h"
 
-struct parameters{
-        char** infile;
-        int num_infiles;
-        int help_flag;
-
-};
+#include "reporting.h"
 
 static int run_mumsa(struct parameters* param);
 static int check_for_sequences(struct msa* msa);
@@ -39,6 +34,7 @@ int main(int argc, char *argv[])
         MMALLOC(param, sizeof(struct parameters));
         param->help_flag = 0;
         param->num_infiles = 0;
+        param->score_mode = MUMSA_SCORE_REF;
         param->infile = NULL;
 
         while (1){
@@ -132,7 +128,6 @@ int run_mumsa(struct parameters* param)
         int j;
         int c;
 
-
         RUN(alloc_mumsa_data(&m_data, param->num_infiles));
 
         /* Step one read in all alignments  */
@@ -168,7 +163,7 @@ int run_mumsa(struct parameters* param)
         RUN(calc_overlap(m_data));
 
 
-
+        print_scores(m_data, param);
         free_mumsa_data(m_data);
         return OK;
 

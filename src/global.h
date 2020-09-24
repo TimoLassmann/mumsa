@@ -35,6 +35,19 @@
 
 /* #include "tldevel.h" */
 
+struct parameters{
+        char** infile;
+        int score_mode;
+        int num_infiles;
+        int help_flag;
+
+};
+
+#define MUMSA_SCORE_REF 1
+#define MUMSA_SCORE_REF_TEST 2
+#define MUMSA_SCORE_TEST 3
+
+
 
 #define ALN_STATUS_UNALIGNED 1   /* no gaps sequences may or may not have equal lengths  */
 #define ALN_STATUS_ALIGNED 2   /* sequences have equal lengths and may or may not contain gaps*/

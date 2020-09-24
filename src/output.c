@@ -450,6 +450,7 @@ static void fasta_output(struct alignment* aln,char* outfile)
 
 void print_alignment_scores(struct aln_space* aln_space, struct parameters* param,struct alignment** alignments)
 {
+
         float diff = aln_space->diff;
         char** aln_name = param->infile;
         float* scores = aln_space->scores;
