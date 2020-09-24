@@ -40,19 +40,22 @@ int calc_overlap(struct mumsa_data* m)
         }
         for (j = 0; j < m->num_aln;j++){
                 for (c =j+1;c < m->num_aln;c++){
+                        LOG_MSG("%d %d %f", j,c, m->overlap[j][c]);
                         m->overlap[c][j] = m->overlap[j][c];
                 }
         }
 
 
-        for (i = 0;i < m->num_aln;i++){
+        /*for (i = 0;i < m->num_aln;i++){
                 p1 = m->msai[i]->pairs;
 
                 for ( j = 0; j < m->num_aln;j++){
                         p2 = m->msai[j]->pairs;
+
                         m->overlap[i][j] = m->overlap[i][j]/ ((p1 + p2) / 2.0);
+                        LOG_MSG("%d %d %f %f -> %f", i,j,p1,p2, m->overlap[i][j]);
                 }
-        }
+                }*/
         return OK;
 }
 
@@ -76,7 +79,11 @@ int calc_sim_pairs(struct mumsa_data* m)
         for(i = 0; i < m->num_aln;i++){
                 m->msai[i]->pairs = 0.0;
         }
-
+        for(i = 0; i < m->num_seq;i++){
+                for (j = 0; j < m->num_seq;j++){
+                        m->sim[i][j] = 0.0;
+                }
+        }
 
 
         for(i = 0; i < m->num_seq-1;i++){
@@ -92,11 +99,13 @@ int calc_sim_pairs(struct mumsa_data* m)
 
                                         v = kh_value(h, k);
 
-                                        m->s[v].pcounts += 1.0F;
+                                        m->s[v].pcounts += 1.0;
                                         m->sim[i][j] += pop(v);
                                 }
                         }
-                        m->sim[i][j] = m->sim[j][j] / (double)(MACRO_MIN(len_a,len_b));
+                        //LOG_MSG("%d %d %f / %f ", i,i, m->sim[i][j], ((double) m->num_aln *(double)(MACRO_MIN(len_a,len_b))));
+                        m->sim[i][j] = m->sim[i][j] / ((double) m->num_aln *(double)(MACRO_MIN(len_a,len_b)));
+                        //LOG_MSG("%d %d %f", i,i, m->sim[i][j]);
                         kh_clear(PAIR, h);
                 }
         }
