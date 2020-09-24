@@ -1,7 +1,7 @@
 /*
     Kalign - a multiple sequence alignment program
 
-    Copyright 2006, 2019 Timo Lassmann
+    Copyright 2006, 2019, 2020 Timo Lassmann
 
     This file is part of kalign.
 

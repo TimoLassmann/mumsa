@@ -1,9 +1,9 @@
 /*
-    Kalign - a multiple sequence alignment program
+    Mumsa
 
-    Copyright 2006, 2019 Timo Lassmann
+    Copyright 2020 Timo Lassmann
 
-    This file is part of kalign.
+    This file is part of mumsa.
 
     Kalign is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
