@@ -69,8 +69,6 @@ git submodule update --init --recursive
 
 cd tldevel
 ./autogen.sh
-./configure
-make
 
 echo
 echo "Now run '$srcdir/configure' and 'make' to compile."
