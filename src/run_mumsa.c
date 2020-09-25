@@ -162,7 +162,7 @@ int run_mumsa(struct parameters* param)
                 LOG_MSG("Aligned : %d", m_data->msa[i]->aligned);
         }
         for(i = 0; i < param->num_infiles;i++){
-                if(m_data->msa[i]->aligned != ALN_STATUS_ALIGNED){
+                if(m_data->msa[i]->aligned == ALN_STATUS_UNALIGNED){
                         ERROR_MSG("Sequences in file %s are not aligned.", param->infile[i]);
                 }
 
