@@ -59,12 +59,18 @@ echo "   libtoolize: $(libtoolize --version | head -1)"
 echo
 
 
+
 aclocal -I m4 $AL_OPTS
 # autoheader $AH_OPTS
 automake --add-missing --copy --gnu $AM_OPTS
 autoconf -Wno-syntax
 
+git submodule update --init --recursive
 
+cd tldevel
+./autogen.sh
+./configure
+make
 
 echo
 echo "Now run '$srcdir/configure' and 'make' to compile."

@@ -5,7 +5,7 @@
 # DESCRIPTION
 #
 #   This macro checks whether tldevel is installed nearby. This macro is
-#   in essence a copy of the ax_with_htslib library. 
+#   in essence a copy of the ax_with_htslib library.
 #
 #   The following output variables are set by this macro:
 #
@@ -87,7 +87,6 @@ system) ax_cv_tldevel_which=system ;;
   fi
   ;;
 esac
-
 
 case $ax_cv_tldevel_which in
 source)
