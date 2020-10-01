@@ -175,6 +175,7 @@ int run_mumsa(struct parameters* param)
         }
         /* fill data structures needed for mumsa */
         for(i = 0; i < param->num_infiles;i++){
+                /* LOG_MSG("reading: %s", param->infile[i]); */
                 RUN(read_msa_into_msai(m_data->msa[i],&m_data->msai[i]));
 
         }

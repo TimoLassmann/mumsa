@@ -206,10 +206,10 @@ int read_msa_into_msai(struct msa* msa,struct msa_info** msai)
         }
         aln_len += msa->sequences[0]->gaps[msa->sequences[0]->len];
 
+
         RUN(alloc_msa_info(&m, msa->numseq, aln_len));
 
-
-
+        /* LOG_MSG("%d %d", msa->numseq, aln_len+1); */
         for(i = 0; i < msa->numseq;i++){
                 g = 0;
                 for(j = 0;j < msa->sequences[i]->len;j++){
@@ -218,6 +218,7 @@ int read_msa_into_msai(struct msa* msa,struct msa_info** msai)
                                 m->s[i][g] = -1;
                                 g++;
                         }
+                        //LOG_MSG("%d ",g);
                         m->s[i][g] = msa->sequences[i]->s[j];
                         g++;
                 }

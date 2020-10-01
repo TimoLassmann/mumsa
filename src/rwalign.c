@@ -1,9 +1,9 @@
 /*
     Kalign - a multiple sequence alignment program
 
-    Copyright 2006, 2019, 2020 Timo Lassmann
+    Copyright 2006, 2019 Timo Lassmann
 
-    This file is part of mumsa.
+    This file is part of kalign.
 
     Kalign is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -640,9 +640,11 @@ int write_msa_msf(struct msa* msa,char* outfile)
         struct out_line* ol= NULL;
         struct msa_seq* seq = NULL;
         time_t now;			/* current time as a time_t */
+        struct tm local_time;
         char   date[64];		/* today's date in GCG's format "October 3, 1996 15:57" */
         char* linear_seq = NULL;
         char* ptr;
+        char* basename = NULL;
         FILE* f_ptr = NULL;
 
         int aln_len;
@@ -728,18 +730,30 @@ int write_msa_msf(struct msa* msa,char* outfile)
 
         /* The msf line*/
         now = time(NULL);
-        if (strftime(date, 64, "%B %d, %Y %H:%M", localtime(&now)) == 0){
+
+        if((localtime_r(&now,&local_time)) == NULL){
+                ERROR_MSG("could not get local time");
+        }
+
+        if (strftime(date, 64, "%B %d, %Y %H:%M", &local_time) == 0){
                 ERROR_MSG("time failed???");
         }
         ol = lb->lines[lb->num_line];
+        if(outfile){
+                RUN(tlfilename(outfile, &basename));
+        }
 
-        written = snprintf(ol->line, line_length," %s  MSF: %d  Type: %c  %s  Check: %d  ..", outfile == NULL ? "stdout" : basename(outfile),aln_len, msa->L == defPROTEIN ? 'P' : 'N', date, GCGMultchecksum(msa));
+        written = snprintf(ol->line, line_length," %s  MSF: %d  Type: %c  %s  Check: %d  ..", outfile == NULL ? "stdout" :   basename,aln_len, msa->L == defPROTEIN ? 'P' : 'N', date, GCGMultchecksum(msa));
 
         if(written >= line_length){
                 MREALLOC(lb->lines[lb->num_line]->line,sizeof(char) * (written+1));
                 ol = lb->lines[lb->num_line];
-                written = snprintf(ol->line, written+1," %s  MSF: %d  Type: %c  %s  Check: %d  ..", outfile == NULL ? "stdout" : basename(outfile),aln_len, msa->L == defPROTEIN ? 'P' : 'N', date, GCGMultchecksum(msa));
+                written = snprintf(ol->line, written+1," %s  MSF: %d  Type: %c  %s  Check: %d  ..", outfile == NULL ? "stdout" : basename,aln_len, msa->L == defPROTEIN ? 'P' : 'N', date, GCGMultchecksum(msa));
 
+        }
+
+        if(basename){
+                MFREE(basename);
         }
 
         ol->block = -1;
@@ -895,6 +909,12 @@ int write_msa_msf(struct msa* msa,char* outfile)
         MFREE(linear_seq);
         return OK;
 ERROR:
+        if(linear_seq){
+                MFREE(linear_seq);
+        }
+        if(basename){
+                MFREE(basename);
+        }
         return FAIL;
 }
 
@@ -1081,7 +1101,7 @@ int read_clu(struct in_buffer* b , struct msa** m)
                 ni++;
                 //line_len = nread;
                 //line[line_len-1] = 0;
-                line_len--;
+                /* line_len--; */
                 break;
         }
         active_seq =0;
@@ -1093,7 +1113,7 @@ int read_clu(struct in_buffer* b , struct msa** m)
                 //line_len = strnlen(line, BUFFER_LEN);
                 //line_len = nread;
                 //line[line_len-1] = 0;
-                line_len--;     /* last character is newline  */
+                /* line_len--;     /\* last character is newline  *\/ */
                 if(!line_len){
                         active_seq = 0;
                 }else{
@@ -1124,8 +1144,7 @@ int read_clu(struct in_buffer* b , struct msa** m)
                                                 if(seq_ptr->alloc_len == seq_ptr->len){
                                                         resize_msa_seq(seq_ptr);
                                                 }
-                                        }
-                                        if(ispunct((int)p[i])){
+                                        }else if(ispunct((int)p[i])){
                                                 seq_ptr->gaps[seq_ptr->len]++;
                                         }
                                 }
@@ -1165,7 +1184,7 @@ int read_msf(struct in_buffer* b,struct msa** m)
                 line = b->l[nl]->line;
                 line_len = b->l[nl]->len;
                 li++;
-                line_len--;     /* last character is newline  */
+                /* line_len--;     /\* last character is newline  *\/ */
                 //fprintf(stdout,"%d \"%s\"\n",line_len,line);
                 if(strstr(line, "//")){
                         //      LOG_MSG("Header done");
@@ -1201,7 +1220,7 @@ int read_msf(struct in_buffer* b,struct msa** m)
         for(nl = li; nl < b->n_lines;nl++){
                 line = b->l[nl]->line;
                 line_len = b->l[nl]->len;
-                line_len--;     /* last character is newline  */
+                /* line_len--;     /\* last character is newline  *\/ */
                 if(!line_len){
                         active_seq = 0;
                 }else{
@@ -1222,8 +1241,7 @@ int read_msf(struct in_buffer* b,struct msa** m)
                                                 if(seq_ptr->alloc_len == seq_ptr->len){
                                                         resize_msa_seq(seq_ptr);
                                                 }
-                                        }
-                                        if(ispunct((int)p[i])){
+                                        }else if(ispunct((int)p[i])){
                                                 seq_ptr->gaps[seq_ptr->len]++;
                                         }
                                 }
@@ -1285,7 +1303,7 @@ int read_fasta( struct in_buffer* b,struct msa** m)
                                 RUN(resize_msa(msa));
                         }
 
-                        line[line_len-1] = 0;
+                        /* line[line_len-1] = 0; */
                         for(i =0 ; i < line_len;i++){
                                 if(isspace(line[i])){
                                         line[i] = 0;
@@ -1308,8 +1326,7 @@ int read_fasta( struct in_buffer* b,struct msa** m)
 
                                         seq_ptr->seq[seq_ptr->len] = line[i];
                                         seq_ptr->len++;
-                                }
-                                if(ispunct((int)line[i])){
+                                }else if(ispunct((int)line[i])){
                                         seq_ptr->gaps[seq_ptr->len]++;
                                 }
                         }
@@ -1534,7 +1551,7 @@ int resize_msa_seq(struct msa_seq* seq)
         MREALLOC(seq->s, sizeof(uint8_t) * seq->alloc_len);
         MREALLOC(seq->gaps, sizeof(int) * (seq->alloc_len+1));
 
-        for(i = old_len;i < seq->alloc_len+1;i++){
+        for(i = old_len+1;i < seq->alloc_len+1;i++){
                 seq->gaps[i] = 0;
         }
 
@@ -1674,7 +1691,7 @@ int read_file_stdin(struct in_buffer** buffer,char* infile)
         char* tmp = NULL;
         size_t b_len = 0;
         ssize_t nread;
-
+        int i;
         //char line[BUFFER_LEN];
         int line_len;
 
@@ -1700,11 +1717,19 @@ int read_file_stdin(struct in_buffer** buffer,char* infile)
                 line_len = nread;
                 //tmp = b->l[b->n_lines]->line;
                 tmp= NULL;
-                MMALLOC(tmp, sizeof(char) * (line_len));
-                memcpy(tmp, line, line_len);
-                tmp[line_len-1] = 0;
+                MMALLOC(tmp, sizeof(char) * (line_len+1));
+                for(i = 0; i < line_len;i++){
+
+                        if(iscntrl((int) line[i])){
+                                break;
+                        }
+                        tmp[i] = line[i];
+                }
+                tmp[i] = 0;
+                //memcpy(tmp, line, line_len);
+                //tmp[line_len-1] = 0;
                 b->l[b->n_lines]->line = tmp;
-                b->l[b->n_lines]->len = line_len;
+                b->l[b->n_lines]->len = i;
                 b->n_lines++;
                 if(b->n_lines == b->alloc_lines){
                         RUN(resize_in_buffer(b));
