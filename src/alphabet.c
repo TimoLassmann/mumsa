@@ -1,7 +1,7 @@
 /*
     Kalign - a multiple sequence alignment program
 
-    Copyright 2006, 2019, 2020 Timo Lassmann
+    Copyright 2006, 2019 Timo Lassmann
 
     This file is part of kalign.
 
@@ -19,9 +19,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
-#include "tldevel.h"
 
 #include "alphabet.h"
+#include "tldevel.h"
 
 int create_default_protein(struct alphabet* a);
 int create_protein_BZX(struct alphabet* a);
@@ -89,23 +89,23 @@ struct alphabet* create_alphabet(int type)
         }
 
         switch (type) {
-        case defPROTEIN : {
+        case ALPHA_defPROTEIN : {
                 create_default_protein(a);
                 break;
         }
-        case ambigiousPROTEIN :{
+        case ALPHA_ambigiousPROTEIN :{
                 create_protein_BZX(a);
                 break;
         }
-        case defDNA : {
+        case ALPHA_defDNA : {
                 create_default_DNA(a);
                 break;
         }
-                        case redPROTEIN : {
-                                create_reduced_protein(a);
-                                break;
-                        }
-                                default:
+        case ALPHA_redPROTEIN : {
+                create_reduced_protein(a);
+                break;
+        }
+        default:
                 break;
         }
 
@@ -131,11 +131,11 @@ int switch_alphabet(struct alphabet* a, int type)
         }
 
         switch (type) {
-        case defPROTEIN : {
+        case ALPHA_defPROTEIN : {
                 create_default_protein(a);
                 break;
         }
-        case redPROTEIN : {
+        case ALPHA_redPROTEIN : {
                 create_reduced_protein(a);
                 break;
         }

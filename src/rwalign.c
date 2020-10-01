@@ -204,12 +204,10 @@ int read_input(char* infile,struct msa** msa)
                 *msa = NULL;
                 return OK;
         }
-        //exit(0);
 
         RUN(detect_alignment_format(b, &type));
-        //exit(0);
 
-        //LOG_MSG("FORMAT: %d", type);
+        /* LOG_MSG("FORMAT: %d", type); */
         if(type == FORMAT_FA){
                 //RUNP(msa = read_msf(infile,msa));
                 //RUNP(msa = read_clu(infile,msa));
@@ -373,60 +371,70 @@ ERROR:
 int detect_alphabet(struct msa* msa)
 {
         int i;
-        int min,c;
-        uint8_t DNA[128];
-        uint8_t protein[128];
-        int diff[3];
+
+        double DNA[128];
+        double protein[128];
         char DNA_letters[]= "acgtuACGTUnN";
         char protein_letters[] = "acdefghiklmnpqrstvwyACDEFGHIKLMNPQRSTVWY";
 
+        double dna_prob;
+        double prot_prob;
+
         ASSERT(msa != NULL, "No alignment");
 
+
         for(i = 0; i <128;i++){
-                DNA[i] = 0;
-                protein[i] = 0;
+                DNA[i] = 1.0;
+                protein[i] = 1.0;
+
         }
 
         for(i = 0 ; i < (int)strlen(DNA_letters);i++){
-                DNA[(int) DNA_letters[i]] = 1;
+                DNA[(int) DNA_letters[i]] += 1000.0;
         }
 
         for(i = 0 ; i < (int)strlen(protein_letters);i++){
-                protein[(int) protein_letters[i]] = 1;
+                protein[(int) protein_letters[i]] += 1000.0;
+        }
+        dna_prob = 0.0;
+        prot_prob = 0.0;
+        for(i = 0; i <128;i++){
+                dna_prob += DNA[i];
+                prot_prob += protein[i];
         }
 
-        diff[0] = 0;
-        diff[1] = 0;
+        for(i = 0; i <128;i++){
+                DNA[i] /= dna_prob;
+                protein[i] /= prot_prob;
+        }
+
+        dna_prob = 0.0;
+        prot_prob = 0.0;
         for(i = 0; i < 128;i++){
-                if((msa->letter_freq[i]) && (!DNA[i])){
-                        diff[0]++;
+                if(msa->letter_freq[i]){
+                        dna_prob += DNA[i] * (double) msa->letter_freq[i];
+                        prot_prob += protein[i]* (double) msa->letter_freq[i];
                 }
-                if((msa->letter_freq[i]) && (!protein[i])){
-                        diff[1]++;
-                }
+                /* LOG_MSG("%d %d %d %d -> %d %d", i, msa->letter_freq[i], DNA[i],protein[i], diff[0],diff[1]); */
         }
 
-        if( diff[0] + diff[1] == 0){
-                ERROR_MSG("Could not detect any AA or nucleotides.");
-        }
-        c = -1;
-        min = 2147483647;
-        for(i = 0; i < 2;i++){
-                if(diff[i] < min){
-                        min = diff[i];
-                        c = i;
-                }
-        }
-        if(c == 0){
-                LOG_MSG("Detected DNA sequences.");
-                msa->L = defDNA;
-                RUN(convert_msa_to_internal(msa, defDNA));
-        }else if(c == 1){
-                LOG_MSG("Detected protein sequences.");
-                msa->L = redPROTEIN;
-                RUN(convert_msa_to_internal(msa, redPROTEIN));
+        /* LOG_MSG("DNA: %f PROT: %f",dna_prob,prot_prob); */
+
+        if( dna_prob == prot_prob){
+                WARNING_MSG("Could not determine whether we have a DNA or Protein alignment");
+                msa->L = ALPHA_UNKNOWN;
         }else{
-                ERROR_MSG("Alphabet not recognized.");
+                if(dna_prob > prot_prob){
+                        LOG_MSG("Detected DNA sequences.");
+                        msa->L = ALPHA_defDNA;
+                        RUN(convert_msa_to_internal(msa, ALPHA_defDNA));
+                }else if(prot_prob > dna_prob){
+                        LOG_MSG("Detected protein sequences.");
+                        msa->L = ALPHA_redPROTEIN;
+                        RUN(convert_msa_to_internal(msa, ALPHA_redPROTEIN));
+                }else{
+                        ERROR_MSG("Alphabet not recognized.");
+                }
         }
         return OK;
 ERROR:
@@ -706,11 +714,11 @@ int write_msa_msf(struct msa* msa,char* outfile)
         header_index = -1 * (msa->numseq+10);
         ol = lb->lines[lb->num_line];
         //LOG_MSG("Alphabet : %d", msa->L);
-        if(msa->L == defPROTEIN){
+        if(msa->L == ALPHA_defPROTEIN){
                 snprintf(ol->line, line_length,"!!AA_MULTIPLE_ALIGNMENT 1.0");
-        }else if(msa->L == redPROTEIN){
+        }else if(msa->L == ALPHA_redPROTEIN){
                 snprintf(ol->line, line_length,"!!AA_MULTIPLE_ALIGNMENT 1.0");
-        }else if(msa->L == defDNA){
+        }else if(msa->L == ALPHA_defDNA){
                 snprintf(ol->line, line_length,"!!NA_MULTIPLE_ALIGNMENT 1.0");
         }else{
                 snprintf(ol->line, line_length,"!!NA_MULTIPLE_ALIGNMENT 1.0");
@@ -743,12 +751,12 @@ int write_msa_msf(struct msa* msa,char* outfile)
                 RUN(tlfilename(outfile, &basename));
         }
 
-        written = snprintf(ol->line, line_length," %s  MSF: %d  Type: %c  %s  Check: %d  ..", outfile == NULL ? "stdout" :   basename,aln_len, msa->L == defPROTEIN ? 'P' : 'N', date, GCGMultchecksum(msa));
+        written = snprintf(ol->line, line_length," %s  MSF: %d  Type: %c  %s  Check: %d  ..", outfile == NULL ? "stdout" :   basename,aln_len, msa->L == ALPHA_defPROTEIN ? 'P' : 'N', date, GCGMultchecksum(msa));
 
         if(written >= line_length){
                 MREALLOC(lb->lines[lb->num_line]->line,sizeof(char) * (written+1));
                 ol = lb->lines[lb->num_line];
-                written = snprintf(ol->line, written+1," %s  MSF: %d  Type: %c  %s  Check: %d  ..", outfile == NULL ? "stdout" : basename,aln_len, msa->L == defPROTEIN ? 'P' : 'N', date, GCGMultchecksum(msa));
+                written = snprintf(ol->line, written+1," %s  MSF: %d  Type: %c  %s  Check: %d  ..", outfile == NULL ? "stdout" : basename,aln_len, msa->L == ALPHA_defPROTEIN ? 'P' : 'N', date, GCGMultchecksum(msa));
 
         }
 
@@ -1296,7 +1304,7 @@ int read_fasta( struct in_buffer* b,struct msa** m)
                 //while(fgets(line, BUFFER_LEN, f_ptr)){
                 //line_len = nread;
 
-                //fprintf(stdout,"%d %d %s",line_len,nread,line);
+                //fprintf(stdout,"%d %s\n",line_len,line);
                 if(line[0] == '>'){
                         /* alloc seq if buffer is full */
                         if(msa->alloc_numseq == msa->numseq){
@@ -1333,6 +1341,8 @@ int read_fasta( struct in_buffer* b,struct msa** m)
                 }
         }
         RUN(null_terminate_sequences(msa));
+
+
         *m = msa;
         //fclose(f_ptr);
         //MFREE(line);
@@ -1356,8 +1366,7 @@ int merge_msa(struct msa** dest, struct msa* src)
         if(d == NULL){
                 d = alloc_msa();
         }
-
-        if(d->L != 0){
+        if(d->L != ALPHA_UNDEFINED){
                 if(d->L != src->L){
                         ERROR_MSG("Input alignments have different alphabets");
                 }
@@ -1443,7 +1452,7 @@ struct msa* alloc_msa(void)
         msa->alloc_numseq = 512;
         msa->numseq = 0;
         msa->num_profiles = 0;
-        msa->L = 0;
+        msa->L = ALPHA_UNDEFINED;
         msa->aligned = 0;
         msa->plen = NULL;
         msa->sip = NULL;

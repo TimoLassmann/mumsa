@@ -58,7 +58,7 @@ int sanity_check_input(struct mumsa_data* md)
                         }
                         for(c = 0; c < md->msai[i]->num_seq;c++){
                                 if(md->msai[i]->adler_val[c] != md->msai[j]->adler_val[c]){
-                                        ERROR_MSG("Sequence %d and %s differ!",
+                                        ERROR_MSG("Sequence %s and %s differ!",
                                                   md->msa[i]->sequences[c]->name,
                                                   md->msa[j]->sequences[c]->name
                                                 );
