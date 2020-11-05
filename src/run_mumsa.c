@@ -47,11 +47,12 @@ static int print_mumsa_warranty(void);
 static int print_mumsa_help(char * argv[]);
 static void free_parameters(struct parameters* param);
 
+#define OPT_MODE 1
 
 int main(int argc, char *argv[])
 {
         struct parameters* param = NULL;
-
+        char* mode = NULL;
         int version = 0;
         int showw = 0;
 
@@ -64,6 +65,7 @@ int main(int argc, char *argv[])
 
         while (1){
                 static struct option long_options[] ={
+                        {"mode",  required_argument, 0, OPT_MODE},
                         {"help",   no_argument,0,'h'},
                         {"version",   no_argument,0,'v'},
                         {0, 0, 0, 0}
@@ -78,6 +80,9 @@ int main(int argc, char *argv[])
                         break;
                 }
                 switch(c) {
+                case OPT_MODE:
+                        mode = optarg;
+                        break;
                 case 'h':
                         param->help_flag = 1;
                         break;
@@ -109,6 +114,18 @@ int main(int argc, char *argv[])
                 RUN(print_mumsa_help(argv));
                 free_parameters(param);
                 return EXIT_SUCCESS;
+        }
+        if(mode != NULL){
+                if(!strncmp(mode, "ref",16)){
+                        param->score_mode = MUMSA_SCORE_REF;
+                }else if(!strncmp(mode, "test",16)){
+                        param->score_mode = MUMSA_SCORE_TEST;
+                }else if(!strncmp(mode, "both",16)){
+                        param->score_mode = MUMSA_SCORE_REF_TEST;
+                }else{
+                        ERROR_MSG("Mode: \n\n\"%s\"\n\n is not a valid option. Choose between ref,test or both.",mode);
+                }
+
         }
         /* for good measure */
         param->num_infiles = 0;
@@ -209,17 +226,20 @@ ERROR:
 
 int print_mumsa_help(char * argv[])
 {
-        const char usage[] = " -i <seq file> -o <out aln> ";
+        const char usage[] = " <refaln.msf> <testaln1.msf> <testaln2.msf>";
         fprintf(stdout,"\nUsage: %s %s\n\n",basename(argv[0]) ,usage);
         fprintf(stdout,"Options:\n\n");
 
-
+        fprintf(stdout,"%*s%-*s: %s %s\n",3,"",MESSAGE_MARGIN-3,"--mode","specifies how to calculate scores." ,"[ref]"  );
         fprintf(stdout,"%*s%-*s: %s %s\n",3,"",MESSAGE_MARGIN-3,"--version (-V/-v)","Prints version." ,"[NA]"  );
 
         fprintf(stdout,"\nExamples:\n\n");
 
         fprintf(stdout,"mumsa aln.msf aln2.msf etc.... \n\n");
+
+        fprintf(stdout,"Mumsa calculates the number of aligned residues shared between the reference and test alignment divided by:\n \"ref\" - the total number of aligned residues in the reference,\n\"test\" - the total number of aligned residues in the test alignment or:\n\"both\" - average number of aligned residues in test and ref alignment.\n\n");
         fprintf(stdout,"NOTE: mumsa always treats the first alignment as the reference.\n\n");
+
 
 
         return OK;

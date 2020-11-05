@@ -45,8 +45,8 @@ int print_scores(struct mumsa_data* m,struct parameters* param)
                 n_pairs = 0.0;
                 if(param->score_mode == MUMSA_SCORE_REF){
                         n_pairs = m->msai[0]->pairs;
-                }else if(param->score_mode = MUMSA_SCORE_REF_TEST){
-                        n_pairs = (m->msai[0]->pairs + m->msai[i]->pairs) / 2.0;
+                }else if(param->score_mode == MUMSA_SCORE_REF_TEST){
+                        n_pairs = (double)(m->msai[0]->pairs + m->msai[i]->pairs) / 2.0;
                 }else{
                         n_pairs = m->msai[i]->pairs;
                 }
